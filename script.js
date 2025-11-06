@@ -1,5 +1,4 @@
 mapboxgl.accessToken = 'pk.eyJ1Ijoicmlhbm5hc2Ftc29uIiwiYSI6ImNtaGEwZmw3MDBoMmQyaXB5YWtuOTRxYXQifQ.4UKVovVdhn3VLZFlhi5AJA';
-
 const map = new mapboxgl.Map({
   container: 'map', // this is the container ID that we set in the HTML
   style: 'mapbox://styles/riannasamson/cmhbasxge001701rg0iahd4tr', // Your Style URL goes here
@@ -24,4 +23,38 @@ map.on('load', function() {
             'circle-stroke-color': '#ffffff'
         }
     });
+
+    // Add click event for popups
+      map.on('click', 'points-layer', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+            const properties = e.features[0].properties;
+
+    // Create popup content using the actual data properties
+        const popupContent = `
+            <div>
+                <h3>${properties.Landmark}</h3>
+                <p><strong>Address:</strong> ${properties.Address}</p>
+                <p><strong>Architect & Date:</strong> ${properties["Architect + Date"]}</p>
+                <p><strong>Designated:</strong> ${properties.Designated}</p>
+                ${properties.Link ? `<p><a href="${properties.Link}" target="_blank">More Information</a></p>` : ''}
+                ${properties.Notes ? `<p><strong>Notes:</strong> ${properties.Notes}</p>` : ''}
+            </div>
+        `;
+
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(popupContent)
+            .addTo(map);
+    });
+
+    // Change cursor to pointer when hovering over points
+    map.on('mouseenter', 'points-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change cursor back when leaving points
+    map.on('mouseleave', 'points-layer', () => {
+        map.getCanvas().style.cursor = '';
+    });
+
 });
